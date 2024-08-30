@@ -1,40 +1,11 @@
+// server.js
 const express = require('express');
 const axios = require('axios');
-const mongoose = require('mongoose');
 const searoutesDocs = require('@api/searoutes-docs');
+const { Vessel } = require('./db'); // Import the Vessel model from db.js
 
 const app = express();
-const port = 3006;
-
-// Replace 'yourpassword123' with your actual MongoDB password and 'mydatabase' with your database name
-mongoose.connect('mongodb+srv://bgarihanth:Gan12345@cluster1.z7q6q.mongodb.net/VesselData', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log('Connected to MongoDB');
-}).catch(err => {
-  console.error('Error connecting to MongoDB:', err);
-});
-
-// Define Mongoose schema and model
-const vesselSchema = new mongoose.Schema({
-  imo: String,
-  name: String,
-  length: Number,
-  width: Number,
-  position: {
-    type: { type: String },
-    coordinates: [Number],
-  },
-  speed: Number,
-  draft: Number,
-  cog: Number,
-  heading: Number,
-  timestamp: Date,
-  satelliteImage: String // Storing the base64 encoded image
-});
-
-const Vessel = mongoose.model('Vessel', vesselSchema);
+const port = 3007; // Change port if necessary
 
 searoutesDocs.auth('43UtHGq7apJRkWd6zV5O2FXCfeQ8UgWxaQLtg100');
 
@@ -65,6 +36,26 @@ app.get('/vessel-position', async (req, res) => {
     const vesselInfo = positionData[0].info;
     const vesselPosition = positionData[0].position;
 
+    // Save vessel data to MongoDB
+    const vessel = new Vessel({
+      imo: vesselInfo.imo,
+      name: vesselInfo.name,
+      length: vesselInfo.length,
+      width: vesselInfo.width,
+      type: vesselPosition.type,
+      timestamp: vesselPosition.properties.timestamp,
+      speed: vesselPosition.properties.speed,
+      draft: vesselPosition.properties.draft,
+      cog: vesselPosition.properties.cog,
+      heading: vesselPosition.properties.heading,
+      location: {
+        latitude: vesselPosition.geometry.coordinates[1],
+        longitude: vesselPosition.geometry.coordinates[0],
+      },
+    });
+
+    await vessel.save();
+
     // Fetch satellite image from port 3000 using axios
     const latitude = vesselPosition.geometry.coordinates[1];
     const longitude = vesselPosition.geometry.coordinates[0];
@@ -79,23 +70,6 @@ app.get('/vessel-position', async (req, res) => {
       responseType: 'arraybuffer'
     });
     const satelliteImage = satelliteImageResponse.data;
-
-    // Save data to MongoDB
-    const newVessel = new Vessel({
-      imo: vesselInfo.imo,
-      name: vesselInfo.name,
-      length: vesselInfo.length,
-      width: vesselInfo.width,
-      position: vesselPosition.geometry,
-      speed: vesselPosition.properties.speed,
-      draft: vesselPosition.properties.draft,
-      cog: vesselPosition.properties.cog,
-      heading: vesselPosition.properties.heading,
-      timestamp: vesselPosition.properties.timestamp,
-      satelliteImage: Buffer.from(satelliteImage).toString('base64')
-    });
-
-    await newVessel.save();
 
     res.writeHead(200, { 'Content-Type': 'text/html' });
 
