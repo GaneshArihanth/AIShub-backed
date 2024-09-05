@@ -1,11 +1,16 @@
 const express = require('express');
 const axios = require('axios');
+const mongoose = require('mongoose');
 const searoutesDocs = require('@api/searoutes-docs');
-const { Vessel } = require('./db');
- // Import the Vessel model from db.js
+const { Vessel } = require('./db'); // Import the Vessel model from db.js
 
 const app = express();
-const port = 3007; // Change port if necessary
+const PORT = 3007;
+
+mongoose.connect('mongodb+srv://bgarihanth:Gan12345@cluster1.z7q6q.mongodb.net/VesselData', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
 searoutesDocs.auth('hVibhA9ZP17k5isTIQrPs1ZJUCDA2mrb78V4gEoh');
 
@@ -39,7 +44,7 @@ app.get('/vessel-position', async (req, res) => {
     const vesselInfo = positionData[0].info;
     const vesselPosition = positionData[0].position;
 
-    // Fetch satellite image from port 3000 using axios
+    // Fetch weather data
     const latitude = vesselPosition.geometry.coordinates[1];
     const longitude = vesselPosition.geometry.coordinates[0];
 
@@ -50,7 +55,6 @@ app.get('/vessel-position', async (req, res) => {
       },
     });
     const data = weatherResponse.data;
-    console.log(data);
 
     await Vessel.create({
       imo: imoNumber,
@@ -74,7 +78,32 @@ app.get('/vessel-position', async (req, res) => {
 
     });
 
+    // Retrieve and compare temperatures
+    const currentDate = new Date();
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(currentDate.getDate() - 1);
 
+    const todayData = await Vessel.findOne({
+      imo: imoNumber,
+      timestamp: { $gte: new Date(currentDate.setUTCHours(0, 0, 0, 0)) }
+    }).sort({ timestamp: -1 });
+
+    const yesterdayData = await Vessel.findOne({
+      imo: imoNumber,
+      timestamp: { $gte: new Date(oneDayAgo.setUTCHours(0, 0, 0, 0)), $lt: new Date(currentDate.setUTCHours(0, 0, 0, 0)) }
+    }).sort({ timestamp: 1 });
+
+    let temperatureMessage = '';
+    if (todayData && yesterdayData) {
+      const tempDifference = Math.abs(todayData.temperature - yesterdayData.temperature).toFixed(2);
+      temperatureMessage = tempDifference > 15 
+        ? `Temperature difference of ${tempDifference}C detected!` 
+        : 'No significant temperature difference';
+    } else {
+      temperatureMessage = 'Could not find both today\'s and yesterday\'s data for the given IMO';
+    }
+
+    // Fetch satellite image
     const satelliteImageResponse = await axios.get(`http://localhost:3000/satellite-image`, {
       params: {
         latitude,
@@ -114,19 +143,21 @@ app.get('/vessel-position', async (req, res) => {
       <p><strong>Wind Speed:</strong> ${data.weather.wind.speed} m/s</p>
       <p><strong>Rain:</strong> ${data.weather.rain}</p>
       <p><strong>Clouds:</strong> ${data.weather.clouds}%</p>
+
+      <h2>Temperature Comparison:</h2>
+      <p>${temperatureMessage}</p>
       
       <h2>Satellite Image:</h2>
       <img src="data:image/png;base64,${Buffer.from(satelliteImage).toString('base64')}" alt="Satellite Image"/>
     `);
 
     res.end();
-  } 
-  catch (err) {
+  } catch (err) {
     console.error('Error fetching vessel position or satellite image:', err);
     res.status(500).json({ error: 'Failed to fetch vessel position or satellite image' });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
