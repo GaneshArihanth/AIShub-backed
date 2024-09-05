@@ -1,0 +1,3376 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "2.10.0",
+    "title": "Search",
+    "description": "# Introduction\nThe Searoutes web services APIs allow you to programmatically access tools and services from the Searoutes ecosystem. You can use these APIs to retrieve informations about vessel positions, vessel routes, GHG emissions, weather and other core data points. Searoutes services are divided in five categories:\n\n- Our [Geocoding service](#tag/geocoding) searchs points of interests, like ports or airports, and provides you with their geolocations.\n\n- Our [Search service](#tag/search) searchs entities used in other endpoints such as carriers or services.\n\n- Our [Vessel service](#tag/vessel) gives you up to date positions of vessels and estimated travel times to their next destination.\n\nNote that this is the documentation page for most recent stable version of Searoutes API. For the previous stable versions, [visit this documentation page](http://developer.searoutes.com/api/v1). \n\nIf you have a `valid API key`, you may try the API by copying the code samples in your shell, your favorite editor, or API development platform. Please be aware that some endpoints may not work with your API key depending on your service plan. If you would like a trial key or you want to add additional endpoints to your plan, please [get in touch with us](https://searoutes.typeform.com/to/ZRAoy5).\n",
+    "termsOfService": "https://searoutes.com/terms-of-service/",
+    "contact": {
+      "email": "support@searoutes.com",
+      "url": "https://searoutes.com"
+    },
+    "x-logo": {
+      "url": "/img/Logo-searoutes-01.svg",
+      "altText": "Searoutes logo"
+    }
+  },
+  "tags": [
+    {
+      "name": "geocoding",
+      "description": "The Searoutes search service is currently composed of a reverse geocoding functionality. Reverse geocoding returns a place, in the general sense, for a coordinate pair `longitude,latitude`."
+    },
+    {
+      "name": "vessel",
+      "description": "Vessel API"
+    }
+  ],
+  "servers": [
+    {
+      "url": "https://api.searoutes.com"
+    }
+  ],
+  "paths": {
+    "/geocoding/v2/airport": {
+      "get": {
+        "operationId": "getGeocodingAirport",
+        "tags": [
+          "geocoding"
+        ],
+        "summary": "Find airport by name, locode or IATA",
+        "description": "This endpoint does forward geocoding: given a name, a locode or IATA code, it returns airports matching the request with their name, locode, IATA code, country, subdivision and coordinates.\n\nThis endpoint can be used for exact matching using `locode` or `iataCode` parameter or for partial matching using `query` parameter. Only one of these fields must be used in a request.\n",
+        "parameters": [
+          {
+            "name": "query",
+            "description": "A partial string used for search. For instance, part of an airport name or part of a locode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": "YUL",
+              "example": "BRTBT",
+              "type": "string"
+            }
+          },
+          {
+            "name": "iataCode",
+            "description": "A string representing the iata code of the searched airport.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "BRTBT",
+              "type": "string"
+            }
+          },
+          {
+            "name": "locode",
+            "description": "A string representing the locode of the searched airport.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "FRMRS",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sizes",
+            "description": "A list of strings used to filter the location by size. Permitted values are `large`, `medium`, `small`. If not passed, all the sizes will be taken into account.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "large,medium",
+              "type": "string"
+            }
+          },
+          {
+            "name": "countryCodes",
+            "description": "A list of country codes (2 characters ISO) used to filter the location by country.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "CA,FR",
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludeCountryCodes",
+            "description": "A list of country codes (2 characters ISO) used to exclude location of some countries.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "US,MX",
+              "type": "string"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/geocoding/v2/airport?locode=BRTBT \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "properties": {
+                        "name": "Marseille Provence Airport",
+                        "locode": "FRMRS",
+                        "countryCode": "FR",
+                        "country": "France",
+                        "subdivision": "13",
+                        "type": "airport",
+                        "iataCode": "MRS",
+                        "city": "Marseille",
+                        "size": "large"
+                      },
+                      "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                          5.22142410278,
+                          43.439271922
+                        ]
+                      }
+                    }
+                  ],
+                  "properties": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Location not found for type airport.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625223683768,
+                  "status": 404,
+                  "error": "Not Found",
+                  "errorCodes": [
+                    "1040"
+                  ],
+                  "messages": [
+                    "Location 'ZZZZ' not found for type airport."
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Geocoding service unavailable.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1626167007887,
+                  "status": 503,
+                  "error": "Service Unavailable",
+                  "errorCodes": [
+                    "5010"
+                  ],
+                  "messages": [
+                    "Geocoding service unavailable."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/geocoding/v2/area/{name}": {
+      "get": {
+        "operationId": "getGeocodingArea",
+        "tags": [
+          "geocoding"
+        ],
+        "summary": "Find routing area by name",
+        "description": "This endpoint does forward geocoding: given a partial string, for instance `panam`, it returns a given number of routing areas which name contains `panam`. It also returns the `id`, `name` and `geolocation`.\n",
+        "parameters": [
+          {
+            "name": "name",
+            "description": "A partial string, with at least 3 characters",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "default": "panama",
+              "example": "panam",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "description": "An integer to limit the number of results",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": 4,
+              "type": "integer"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/geocoding/v2/area/panam \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "properties": {
+                        "id": 11112,
+                        "name": "Panama Canal",
+                        "alternatives": []
+                      },
+                      "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                          -79.81264297221158,
+                          9.1571545291729
+                        ]
+                      }
+                    }
+                  ],
+                  "properties": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625223723457,
+                  "status": 400,
+                  "error": "Bad Request",
+                  "errorCodes": [
+                    "3160"
+                  ],
+                  "messages": [
+                    "Area name can only contain letters and spaces"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625223780916,
+                  "status": 404,
+                  "error": "Not Found",
+                  "errorCodes": [
+                    "1060"
+                  ],
+                  "messages": [
+                    "Area 'test' not found."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/geocoding/v2/port": {
+      "get": {
+        "operationId": "getGeocodingPort",
+        "tags": [
+          "geocoding"
+        ],
+        "summary": "Find port by name or locode",
+        "description": "This endpoint does forward geocoding: given a name or a locode, it returns ports matching the request with their name, locode, country, size, coordinates and whether the port is in an eca zone or not.\n\nUse either `locode` or `query`, not both in the same query.\n",
+        "parameters": [
+          {
+            "name": "locode",
+            "description": "A string representing the locode of the searched airport.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "FRMRS",
+              "type": "string"
+            }
+          },
+          {
+            "name": "query",
+            "description": "A partial string used for search. For instance, part of an port name or part of a locode.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": "FRMRS",
+              "example": "FRMRS",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sizes",
+            "description": "A list of strings used to filter the locations by size. Permitted values are `large`, `medium`, `small`, `tiny`. If not passed, all the sizes will be taken into account.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "large,medium",
+              "type": "string"
+            }
+          },
+          {
+            "name": "countryCodes",
+            "description": "A list of country codes (2 characters ISO) used to filter the locations by country.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "DE,FR",
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludeCountryCodes",
+            "description": "A list of country codes (2 characters ISO) used to exclude locations of some countries.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "US,CA",
+              "type": "string"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/geocoding/v2/port?query=DEHAM \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "properties": {
+                        "name": "Hamburg",
+                        "locode": "DEHAM",
+                        "countryCode": "DE",
+                        "country": "Germany",
+                        "subdivision": "HH",
+                        "type": "port",
+                        "isSeca": true,
+                        "size": "large"
+                      },
+                      "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                          9.93855,
+                          53.519272
+                        ]
+                      }
+                    }
+                  ],
+                  "properties": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Location not found for type port.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625223863077,
+                  "status": 404,
+                  "error": "Not Found",
+                  "errorCodes": [
+                    "1040"
+                  ],
+                  "messages": [
+                    "Location 'Bobigny' not found for type port."
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Geocoding service unavailable.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1626167007887,
+                  "status": 503,
+                  "error": "Service Unavailable",
+                  "errorCodes": [
+                    "5010"
+                  ],
+                  "messages": [
+                    "Geocoding service unavailable."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/geocoding/v2/sea/{coordinates}": {
+      "get": {
+        "operationId": "getGeocodingPlace",
+        "tags": [
+          "geocoding"
+        ],
+        "summary": "Find closest sea point at location",
+        "description": "Given a point as a coordinates pair, this endpoint checks if it is on sea or not. If on sea, it returns the coordinate pair `{longitude},{latitude}` as GeoJSON. If on land, it returns the closest coordinate pair on sea.\n\nThe field 'valid' tells whether the given point is on sea or not.\n\nThe response also contains information about the point : `isSeca` if the point is in an ECA zone and `isCoastal` if the point is close to the coast.\n",
+        "parameters": [
+          {
+            "name": "coordinates",
+            "description": "A pair `longitude,latitude`. Longitude should be between -180 and 180 degrees, and latitude between -90 and 90 degrees.",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "default": "14.27621841430664,40.84464176925914",
+              "example": "14.27621841430664,40.84464176925914",
+              "type": "string"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/geocoding/v2/sea/14.27621841430664,40.84464176925914 \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                  "externalDocs": {
+                    "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                  },
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "Feature",
+                        "FeatureCollection",
+                        "Point",
+                        "MultiPoint",
+                        "LineString",
+                        "MultiLineString",
+                        "Polygon",
+                        "MultiPolygon",
+                        "GeometryCollection"
+                      ]
+                    },
+                    "bbox": {
+                      "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                      "type": "array",
+                      "items": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "required": [
+                    "type"
+                  ],
+                  "discriminator": {
+                    "propertyName": "type"
+                  }
+                },
+                "example": {
+                  "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "properties": {
+                        "mode": "sea",
+                        "isSeca": false,
+                        "isCoastal": true
+                      },
+                      "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                          14.2759029157795,
+                          40.8400212416757
+                        ]
+                      }
+                    }
+                  ],
+                  "valid": false,
+                  "query": [
+                    14.27621841430664,
+                    40.84464176925914
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625223900458,
+                  "status": 400,
+                  "error": "Bad Request",
+                  "errorCodes": [
+                    "3190"
+                  ],
+                  "messages": [
+                    "Longitude must be between -180 and 180."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/geocoding/v2/zipcode": {
+      "get": {
+        "operationId": "getGeocodingZip",
+        "tags": [
+          "geocoding"
+        ],
+        "summary": "Find the geocoordinates of a zipcode",
+        "description": "This endpoint does forward geocoding: given a postal code and a list of countries, it returns both coordinates and information about that particular location.\n",
+        "parameters": [
+          {
+            "name": "countryCodes",
+            "description": "A two letter string denoting the country.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": "FR",
+              "example": "FR",
+              "type": "string"
+            }
+          },
+          {
+            "name": "postalCode",
+            "description": "A string denoting the postal code. Either `query` or `postalCode` must be given.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": 13005,
+              "type": "string"
+            }
+          },
+          {
+            "name": "query",
+            "description": "A partial string used for search. For instance, part of the city name. Either `query` or `postalCode` must be given.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": "Montreal",
+              "example": "Montreal",
+              "type": "string"
+            }
+          },
+          {
+            "name": "country",
+            "description": "Deprecated, use `countryCodes`",
+            "in": "query",
+            "required": false,
+            "deprecated": true,
+            "schema": {
+              "default": "FR",
+              "example": "FR",
+              "type": "string"
+            }
+          },
+          {
+            "name": "postal",
+            "description": "Deprecated, use `postalCode`.",
+            "in": "query",
+            "required": false,
+            "deprecated": true,
+            "schema": {
+              "default": 13005,
+              "example": 13005,
+              "type": "string"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/geocoding/v2/zipcode?countryCodes=FR&postalCode=13005 \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "properties": {
+                        "name": "Marseille 05",
+                        "countryCode": "FR",
+                        "state": "Provence-Alpes-Côte d'Azur",
+                        "country": "France",
+                        "subdivision": "13",
+                        "county": "Bouches-du-Rhône",
+                        "postalCode": "13005",
+                        "type": "zipcode"
+                      },
+                      "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                          5.4006,
+                          43.2955
+                        ]
+                      }
+                    }
+                  ],
+                  "properties": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625223972066,
+                  "status": 404,
+                  "error": "Not Found",
+                  "errorCodes": [
+                    "1040"
+                  ],
+                  "messages": [
+                    "Location with postal code 13001123 in country FR not found."
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Geocoding service unavailable.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1626167007887,
+                  "status": 503,
+                  "error": "Service Unavailable",
+                  "errorCodes": [
+                    "5010"
+                  ],
+                  "messages": [
+                    "Geocoding service unavailable."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/geocoding/v2/closest/{coordinates}": {
+      "get": {
+        "operationId": "getGeocodingClosest",
+        "tags": [
+          "geocoding"
+        ],
+        "summary": "Find the closest locations",
+        "description": "This endpoint can be used to retrieve the closest locations from a point ordered by distance or the locations around a point (inside a geographical circle with a given radius (in meters)). You can also choose the number of results. By default, the endpoint only returns the closest location.\n\nThe `coordinates` of the point (or center of the circle) must be passed as path parameter as coordinates pair `longitude,latitude`.\n\nThe query parameter `locationTypes` allows to filter the types returned. A list of values can be passed among `port,airport,zipcode,railTerminal, roadTerminal`. \nIf this parameter is not passed in the query, all the types will be searched.\n\nThe query parameter `sizes` allows to filter the sizes of the locations returned for ports and airports.\n\nFor each location found, geometry (coordinates) is returned as well as a `properties` field that contains different information according to the type of the location.\n\nFor ports : `name`, `locode`, `country`, `countryName`, `size` and `distance` (in meters) from the point passed in the query.\n\nFor airports : `name`, `locode`, `size`, `iataCode`, `countryName`, `countryCode` (as a two letters code), `subdivisionName`, `city`.\n\nFor zipcodes : `name`, `countryCode`, `countryName`, `postalCode` and `distance` (in meters) from the point passed in the query.\n\nFor rail terminals and road terminals : `name`, `locode`, `countryCode`, `countryName` and `distance` (in meters) from the point passed in the query.\n",
+        "parameters": [
+          {
+            "name": "coordinates",
+            "description": "coordinates pair of the point as `longitude,latitude`. Longitude should be between -180 and 180 degrees, and latitude between -90 and 90 degrees.",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "default": "9.965629577636719,53.53296196255539",
+              "example": "9.965629577636719,53.53296196255539",
+              "type": "string"
+            }
+          },
+          {
+            "name": "radius",
+            "description": "the radius of the geographical circle used to search closest locations (in meters). If not passed, the closest locations are retrieved.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": 10000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "locationTypes",
+            "description": "A list of strings used to filter the location types. Permitted values are `port, airport, zipcode, railTerminal, roadTerminal`. If not passed, all the types will be taken into account.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "port,airport,railTerminal",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sizes",
+            "description": "A list of strings used to filter the location by size. Permitted values are `large`, `medium`, `small` and `tiny`. Note that this parameter is available for ports and airports search only. If not passed, all the sizes will be taken into account.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "large,medium",
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "description": "The maximum number of results (between 0 and 50). If not passed, the default limit is 1.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": 10,
+              "type": "integer"
+            }
+          },
+          {
+            "name": "countryCodes",
+            "description": "A list of country codes (2 characters ISO) used to filter the location by country.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "DE,FR",
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludeCountryCodes",
+            "description": "A list of country codes (2 characters ISO) used to exclude location of some countries.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "US,CA",
+              "type": "string"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/geocoding/v2/closest/-40.25390625,81.69784444971418 \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "properties": {
+                        "locationType": "airport",
+                        "name": "Alert Airport",
+                        "locode": "CAYLT",
+                        "iataCode": "YLT",
+                        "countryCode": "CA",
+                        "countryName": "Canada",
+                        "distance": 346055
+                      },
+                      "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                          -62.2806015015,
+                          82.5177993774
+                        ]
+                      }
+                    }
+                  ],
+                  "properties": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625224069293,
+                  "status": 400,
+                  "error": "Bad Request",
+                  "errorCodes": [
+                    "4001"
+                  ],
+                  "messages": [
+                    "Value 'test' is of invalid type for parameter 'locationTypes'."
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Geocoding service unavailable.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1626167007887,
+                  "status": 503,
+                  "error": "Service Unavailable",
+                  "errorCodes": [
+                    "5010"
+                  ],
+                  "messages": [
+                    "Geocoding service unavailable."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/geocoding/v2/all": {
+      "get": {
+        "operationId": "getGeocodingAll",
+        "tags": [
+          "geocoding"
+        ],
+        "summary": "Find all types of locations",
+        "description": "This endpoint returns the locations that match a partial string passed as query parameter (`query`) or matches exactly a specific field (`locode`, `iataCode` or `postalCode`). Only one of these fields must be used in a request.\nLocations returned can be either `airport`, `port`, `zipcode`, `railTerminal` or `roadTerminal`. \n\nThe query parameter `locationTypes` allows to filter the types returned. A list of values can be passed among `port,airport,zipcode,railTerminal, roadTerminal`. \nIf this parameter is not passed in the query, all the types will be searched.\n\nThe query parameter `sizes` allows to filter the sizes of the locations returned for ports and airports.\n\nThe results are returned with this priority order : `port` > `airport` > `railTerminal` > `zipcode` > `roadTerminal`.\n\nFor each location, geometry (coordinates) is returned as well as `properties` fields. These fields differ according to the type of the location.\n\nFor airports : `name`, `locode`, `size`, `iataCode`, `countryName`, `countryCode` (as a two letters code). \n\nFor zipcodes : `name`, `country`, `countryName`, `postalCode`, `stateCode`, `stateName`, `countyCode`, `countyName`.\n\nFor ports : `name`, `locode`, `size`, `country`, `countryName`, `subdivisionCode`, `subdivisionName`.\n\nFor ports, rail terminals and road terminals : `name`, `locode`, `country`, `countryName`, `subdivisionCode`, `subdivisionName`.\n",
+        "parameters": [
+          {
+            "name": "query",
+            "description": "A partial string used for search. For instance, part of an airport name or part of a locode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": "Montreal",
+              "example": "Montreal",
+              "type": "string"
+            }
+          },
+          {
+            "name": "postalCode",
+            "description": "A string denoting the postal code.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": 13002,
+              "type": "string"
+            }
+          },
+          {
+            "name": "locode",
+            "description": "A string representing the locode of the searched airport.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "FRMRS",
+              "type": "string"
+            }
+          },
+          {
+            "name": "iataCode",
+            "description": "A string representing the iata code of the searched airport.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "YUL",
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationTypes",
+            "description": "A list of strings used to filter the location types. Permitted values are `port`, `airport`, `zipcode`, `railTerminal`, `roadTerminal`. If not passed, all the types will be taken into account.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "port,airport,railTerminal",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sizes",
+            "description": "A list of strings used to filter the location by size. Permitted values are `large`, `medium`, `small`. Note that this parameter is available for airports search only. If not passed, all the sizes will be taken into account.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "large,medium",
+              "type": "string"
+            }
+          },
+          {
+            "name": "countryCodes",
+            "description": "A list of country codes (2 characters ISO) used to filter the location by country.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "DE,FR",
+              "type": "string"
+            }
+          },
+          {
+            "name": "excludeCountryCodes",
+            "description": "A list of country codes (2 characters ISO) used to exclude location of some countries.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "US,CA",
+              "type": "string"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/geocoding/v2/all?query=Montreal&locationTypes=port \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "FeatureCollection",
+                  "features": [
+                    {
+                      "type": "Feature",
+                      "properties": {
+                        "locationType": "port",
+                        "name": "Montreal",
+                        "locode": "CAMTR",
+                        "countryCode": "CA",
+                        "countryName": "Canada",
+                        "subdivisionCode": "QC",
+                        "subdivisionName": "Quebec",
+                        "size": "large"
+                      },
+                      "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                          -73.768741607666,
+                          45.4261722564697
+                        ]
+                      }
+                    },
+                    {
+                      "type": "Feature",
+                      "properties": {
+                        "locationType": "port",
+                        "name": "Montréal-Est",
+                        "locode": "CAMRE",
+                        "countryCode": "CA",
+                        "countryName": "Canada",
+                        "subdivisionCode": "QC",
+                        "subdivisionName": "Quebec",
+                        "size": "tiny"
+                      },
+                      "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                          -73.5,
+                          45.633335
+                        ]
+                      }
+                    },
+                    {
+                      "type": "Feature",
+                      "properties": {
+                        "locationType": "port",
+                        "name": "Lachine/Montreal",
+                        "locode": "CALAC",
+                        "countryCode": "CA",
+                        "countryName": "Canada",
+                        "subdivisionCode": "QC",
+                        "subdivisionName": "Quebec",
+                        "size": "tiny"
+                      },
+                      "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                          -73.67,
+                          45.42
+                        ]
+                      }
+                    },
+                    {
+                      "type": "Feature",
+                      "properties": {
+                        "locationType": "port",
+                        "name": "Montréal-du-Gers",
+                        "locode": "FRGGZ",
+                        "countryCode": "FR",
+                        "countryName": "France",
+                        "subdivisionCode": "32",
+                        "subdivisionName": "Gers",
+                        "size": "tiny"
+                      },
+                      "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                          0.18333333333333332,
+                          43.95
+                        ]
+                      }
+                    }
+                  ],
+                  "properties": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625224069293,
+                  "status": 400,
+                  "error": "Bad Request",
+                  "errorCodes": [
+                    "4001"
+                  ],
+                  "messages": [
+                    "Value 'test' is of invalid type for parameter 'locationTypes'."
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Geocoding service unavailable.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1626167007887,
+                  "status": 503,
+                  "error": "Service Unavailable",
+                  "errorCodes": [
+                    "5010"
+                  ],
+                  "messages": [
+                    "Geocoding service unavailable."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/search/v2/carrier/{id}": {
+      "get": {
+        "operationId": "getCarrierById",
+        "tags": [
+          "search"
+        ],
+        "summary": "Find a carrier by id",
+        "description": "This endpoint allows to get carrier information by id.\n",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The id of the carrier",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "default": 21,
+              "example": 21,
+              "type": "integer"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/search/v2/carrier/21 \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 21,
+                  "name": "CMA CGM",
+                  "scac": "CMDU"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Carrier not found.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625230424542,
+                  "status": 404,
+                  "error": "Not Found",
+                  "errorCodes": [
+                    "1072"
+                  ],
+                  "messages": [
+                    "Carrier with id '37' not found."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/search/v2/carriers": {
+      "get": {
+        "operationId": "getCarrierByNameOrScac",
+        "tags": [
+          "search"
+        ],
+        "summary": "Find a carrier by name or SCAC",
+        "description": "This endpoint allows to get carrier information by name or SCAC. The API returns a list of carriers matching the request.\n",
+        "parameters": [
+          {
+            "name": "name",
+            "description": "The name or partial name to search.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": "MSC",
+              "example": "MSC",
+              "type": "string"
+            }
+          },
+          {
+            "name": "scac",
+            "description": "The SCAC of the searched carrier.",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "example": "MSCU",
+              "type": "string"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/search/v2/carriers?name=msc \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 73,
+                    "name": "Mediterranean Shipping Co",
+                    "scac": "MSCU"
+                  },
+                  {
+                    "id": 541,
+                    "name": "Mingsheng Shipping Co., LTD",
+                    "scac": "MSH1"
+                  },
+                  {
+                    "id": 3,
+                    "name": "Antillean Marine Shipping Corp",
+                    "scac": "AMLU"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625228801345,
+                  "status": 400,
+                  "error": "Bad Request",
+                  "errorCodes": [
+                    "2003"
+                  ],
+                  "messages": [
+                    "Either parameter 'scac' or 'name' must be given to search for a carrier."
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Carrier not found.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625228776592,
+                  "status": 404,
+                  "error": "Not Found",
+                  "errorCodes": [
+                    "1071"
+                  ],
+                  "messages": [
+                    "No carrier found for value CMZ."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/search/v2/service/{id}": {
+      "get": {
+        "operationId": "getServiceById",
+        "tags": [
+          "search"
+        ],
+        "summary": "Find a service by id",
+        "description": "This endpoint allows to get service information by id including the name, the ids of the carriers which operate the service, the designation of the service per carrier, the intermediate port calls and the IMOs of the vessels operating these services.\n\nNote that `carrierIds`, `portLocodes` and `vesselImos` in the response are deprecated.\n",
+        "parameters": [
+          {
+            "name": "id",
+            "description": "The id of the service",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "default": 214,
+              "example": 214,
+              "type": "integer"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/search/v2/service/214 \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 214,
+                  "name": "OCEAN Alliance - French Asia Line 1-FAL",
+                  "vessels": [
+                    {
+                      "imo": 9631955
+                    },
+                    {
+                      "imo": 9776432
+                    },
+                    {
+                      "imo": 9839155
+                    },
+                    {
+                      "imo": 9632026
+                    },
+                    {
+                      "imo": 9839167
+                    },
+                    {
+                      "imo": 9631967
+                    },
+                    {
+                      "imo": 9839131
+                    },
+                    {
+                      "imo": 9706906
+                    },
+                    {
+                      "imo": 9839193
+                    },
+                    {
+                      "imo": 9776420
+                    },
+                    {
+                      "imo": 9839143
+                    },
+                    {
+                      "imo": 9702144
+                    },
+                    {
+                      "imo": 9776418
+                    },
+                    {
+                      "imo": 9702156
+                    },
+                    {
+                      "imo": 9631979
+                    },
+                    {
+                      "imo": 9839181
+                    },
+                    {
+                      "imo": 9839210
+                    },
+                    {
+                      "imo": 9706889
+                    },
+                    {
+                      "imo": 9839179
+                    },
+                    {
+                      "imo": 9839208
+                    },
+                    {
+                      "imo": 9631981
+                    },
+                    {
+                      "imo": 9706891
+                    }
+                  ],
+                  "ports": [
+                    {
+                      "locode": "KRPUS"
+                    },
+                    {
+                      "locode": "CNNGB"
+                    },
+                    {
+                      "locode": "CNSHA"
+                    },
+                    {
+                      "locode": "CNYTN"
+                    },
+                    {
+                      "locode": "SGSIN"
+                    },
+                    {
+                      "locode": "FRLEH"
+                    },
+                    {
+                      "locode": "FRDKK"
+                    },
+                    {
+                      "locode": "DEHAM"
+                    },
+                    {
+                      "locode": "PLGDN"
+                    },
+                    {
+                      "locode": "NLRTM"
+                    },
+                    {
+                      "locode": "SAJED"
+                    },
+                    {
+                      "locode": "MYPKG"
+                    },
+                    {
+                      "locode": "KRPUS"
+                    }
+                  ],
+                  "carriers": [
+                    {
+                      "id": 360,
+                      "serviceCode": "FAL"
+                    },
+                    {
+                      "id": 81,
+                      "serviceCode": "LL4"
+                    },
+                    {
+                      "id": 25,
+                      "serviceCode": "AEU2"
+                    },
+                    {
+                      "id": 41,
+                      "serviceCode": "FAL1"
+                    },
+                    {
+                      "id": 4,
+                      "serviceCode": "FAL"
+                    },
+                    {
+                      "id": 21,
+                      "serviceCode": "FAL"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Service not found.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625228833006,
+                  "status": 404,
+                  "error": "Not Found",
+                  "errorCodes": [
+                    "1122"
+                  ],
+                  "messages": [
+                    "Service with id '2' not found."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/search/v2/services": {
+      "get": {
+        "operationId": "getServiceByName",
+        "tags": [
+          "search"
+        ],
+        "summary": "Find a service by name",
+        "description": "This endpoint allows to search for services by name or partial name and retrieve the matching services and their information including the name, the ids of the carriers that operate the service, the designation of the service per carrier, the intermediate port calls and the IMOs of the vessels operating these services.\nYou can also pass a carrier SCAC to filter on the services operated by this carrier.\n",
+        "parameters": [
+          {
+            "name": "name",
+            "description": "The id of the service",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "default": "FAL6",
+              "example": "FAL6",
+              "type": "string"
+            }
+          },
+          {
+            "name": "carrierScac",
+            "description": "The SCAC of a carrier that operates the wanted service",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "default": "CMDU",
+              "example": "CMDU",
+              "type": "string"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/search/v2/services?name=FAL2 \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 370,
+                    "name": "OCEAN Alliance - French Asia Line 6-CEM",
+                    "vessels": [
+                      {
+                        "imo": 9893943
+                      },
+                      {
+                        "imo": 9786839
+                      },
+                      {
+                        "imo": 9893905
+                      },
+                      {
+                        "imo": 9893917
+                      },
+                      {
+                        "imo": 9811000
+                      },
+                      {
+                        "imo": 9893979
+                      },
+                      {
+                        "imo": 9820922
+                      },
+                      {
+                        "imo": 9811012
+                      },
+                      {
+                        "imo": 9893890
+                      },
+                      {
+                        "imo": 9943267
+                      },
+                      {
+                        "imo": 9893955
+                      },
+                      {
+                        "imo": 9909132
+                      },
+                      {
+                        "imo": 9893931
+                      },
+                      {
+                        "imo": 9893929
+                      },
+                      {
+                        "imo": 9893993
+                      }
+                    ],
+                    "ports": [
+                      {
+                        "locode": "TWKHH"
+                      },
+                      {
+                        "locode": "CNTAO"
+                      },
+                      {
+                        "locode": "CNSHA"
+                      },
+                      {
+                        "locode": "CNNGB"
+                      },
+                      {
+                        "locode": "TWTPE"
+                      },
+                      {
+                        "locode": "CNYTN"
+                      },
+                      {
+                        "locode": "SGSIN"
+                      },
+                      {
+                        "locode": "NLRTM"
+                      },
+                      {
+                        "locode": "GBFXT"
+                      },
+                      {
+                        "locode": "DEHAM"
+                      },
+                      {
+                        "locode": "NLRTM"
+                      },
+                      {
+                        "locode": "LKCMB"
+                      },
+                      {
+                        "locode": "MYTPP"
+                      },
+                      {
+                        "locode": "TWKHH"
+                      },
+                      {
+                        "locode": "CNTAO"
+                      },
+                      {
+                        "locode": "CNSHA"
+                      },
+                      {
+                        "locode": "CNNGB"
+                      },
+                      {
+                        "locode": "TWTPE"
+                      },
+                      {
+                        "locode": "CNYTN"
+                      }
+                    ],
+                    "carriers": [
+                      {
+                        "id": 360,
+                        "serviceCode": "FAL6"
+                      },
+                      {
+                        "id": 81,
+                        "serviceCode": "LL6"
+                      },
+                      {
+                        "id": 25,
+                        "serviceCode": "AEU5"
+                      },
+                      {
+                        "id": 41,
+                        "serviceCode": "CEM"
+                      },
+                      {
+                        "id": 4,
+                        "serviceCode": "FAL6"
+                      },
+                      {
+                        "id": 21,
+                        "serviceCode": "FAL6"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625230584785,
+                  "status": 400,
+                  "error": "Bad Request",
+                  "errorCodes": [
+                    "2002"
+                  ],
+                  "messages": [
+                    "Parameter 'name' must be given to search for a service."
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Service not found.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625229959867,
+                  "status": 404,
+                  "error": "Not Found",
+                  "errorCodes": [
+                    "1121"
+                  ],
+                  "messages": [
+                    "No service found for name FAL11."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/vessel/v2/{name}/info": {
+      "get": {
+        "operationId": "getVesselsByName",
+        "tags": [
+          "vessel"
+        ],
+        "summary": "Get vessel information, by name.",
+        "description": "This endpoint returns basic vessel information (imo, width (in m), length (in m), maximum draft (in m)). You can search vessels by name. If several vessels match the given string, up to 5 vessels can be returned.\n",
+        "parameters": [
+          {
+            "name": "name",
+            "description": "The name or a part of the name of the searched vessel.",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "default": "CMA CGM Chopin",
+              "example": "CMA CGM Chopin",
+              "type": "string"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "curl",
+            "source": "curl -X GET \\\nhttps://api.searoutes.com/vessel/v2/CMA CGM Chopin/info \\\n-H 'x-api-key: <your-api-key-here>'\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "imo": "9280603,",
+                    "name": "CMA CGM CHOPIN",
+                    "length": 277,
+                    "width": 40,
+                    "maxDraft": 14.9
+                  }
+                ]
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "timestamp": 1625231068973,
+                  "status": 404,
+                  "error": "Not Found",
+                  "errorCodes": [
+                    "1032"
+                  ],
+                  "messages": [
+                    "Vessel with name 'mca gcm' not found."
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "x-api-key",
+        "in": "header",
+        "description": "Use your `x-api-key` to authenticate with our APIs. Note that your key is tied with a usage plan. You are therefore rate limited depending on your subscription. If you wish you increase your request calls, please [get in touch with us](/contact/)."
+      }
+    },
+    "schemas": {
+      "GeoJsonObject": {
+        "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3"
+        },
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "Feature",
+              "FeatureCollection",
+              "Point",
+              "MultiPoint",
+              "LineString",
+              "MultiLineString",
+              "Polygon",
+              "MultiPolygon",
+              "GeometryCollection"
+            ]
+          },
+          "bbox": {
+            "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "discriminator": {
+          "propertyName": "type"
+        }
+      },
+      "Geometry": {
+        "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3"
+        },
+        "allOf": [
+          {
+            "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Feature",
+                  "FeatureCollection",
+                  "Point",
+                  "MultiPoint",
+                  "LineString",
+                  "MultiLineString",
+                  "Polygon",
+                  "MultiPolygon",
+                  "GeometryCollection"
+                ]
+              },
+              "bbox": {
+                "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Point",
+                  "MultiPoint",
+                  "LineString",
+                  "MultiLineString",
+                  "Polygon",
+                  "MultiPolygon",
+                  "GeometryCollection"
+                ]
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
+          }
+        ]
+      },
+      "GeometryElement": {
+        "description": "Abstract type for all GeoJSon 'Geometry' object the type of which is not 'GeometryCollection'\n",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3"
+        },
+        "allOf": [
+          {
+            "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "allOf": [
+              {
+                "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                "externalDocs": {
+                  "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                },
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Feature",
+                      "FeatureCollection",
+                      "Point",
+                      "MultiPoint",
+                      "LineString",
+                      "MultiLineString",
+                      "Polygon",
+                      "MultiPolygon",
+                      "GeometryCollection"
+                    ]
+                  },
+                  "bbox": {
+                    "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "discriminator": {
+                  "propertyName": "type"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Point",
+                      "MultiPoint",
+                      "LineString",
+                      "MultiLineString",
+                      "Polygon",
+                      "MultiPolygon",
+                      "GeometryCollection"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "discriminator": {
+                  "propertyName": "type"
+                }
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Point",
+                  "MultiPoint",
+                  "LineString",
+                  "MultiLineString",
+                  "Polygon",
+                  "MultiPolygon"
+                ]
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
+          }
+        ]
+      },
+      "Feature": {
+        "description": "GeoJSon 'Feature' object",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.2"
+        },
+        "allOf": [
+          {
+            "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Feature",
+                  "FeatureCollection",
+                  "Point",
+                  "MultiPoint",
+                  "LineString",
+                  "MultiLineString",
+                  "Polygon",
+                  "MultiPolygon",
+                  "GeometryCollection"
+                ]
+              },
+              "bbox": {
+                "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "geometry",
+              "properties"
+            ],
+            "properties": {
+              "geometry": {
+                "allOf": [
+                  {
+                    "nullable": true
+                  },
+                  {
+                    "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+                    "externalDocs": {
+                      "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                    },
+                    "allOf": [
+                      {
+                        "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                        "externalDocs": {
+                          "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                        },
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "Feature",
+                              "FeatureCollection",
+                              "Point",
+                              "MultiPoint",
+                              "LineString",
+                              "MultiLineString",
+                              "Polygon",
+                              "MultiPolygon",
+                              "GeometryCollection"
+                            ]
+                          },
+                          "bbox": {
+                            "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                            "type": "array",
+                            "items": {
+                              "type": "number"
+                            }
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "discriminator": {
+                          "propertyName": "type"
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "Point",
+                              "MultiPoint",
+                              "LineString",
+                              "MultiLineString",
+                              "Polygon",
+                              "MultiPolygon",
+                              "GeometryCollection"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "discriminator": {
+                          "propertyName": "type"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "properties": {
+                "type": "object",
+                "nullable": true
+              },
+              "id": {
+                "oneOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "FeatureCollection": {
+        "description": "GeoJSon 'FeatureCollection' object",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.3"
+        },
+        "allOf": [
+          {
+            "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Feature",
+                  "FeatureCollection",
+                  "Point",
+                  "MultiPoint",
+                  "LineString",
+                  "MultiLineString",
+                  "Polygon",
+                  "MultiPolygon",
+                  "GeometryCollection"
+                ]
+              },
+              "bbox": {
+                "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "features"
+            ],
+            "properties": {
+              "features": {
+                "type": "array",
+                "items": {
+                  "description": "GeoJSon 'Feature' object",
+                  "externalDocs": {
+                    "url": "https://tools.ietf.org/html/rfc7946#section-3.2"
+                  },
+                  "allOf": [
+                    {
+                      "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                      "externalDocs": {
+                        "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                      },
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Feature",
+                            "FeatureCollection",
+                            "Point",
+                            "MultiPoint",
+                            "LineString",
+                            "MultiLineString",
+                            "Polygon",
+                            "MultiPolygon",
+                            "GeometryCollection"
+                          ]
+                        },
+                        "bbox": {
+                          "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                          "type": "array",
+                          "items": {
+                            "type": "number"
+                          }
+                        }
+                      },
+                      "required": [
+                        "type"
+                      ],
+                      "discriminator": {
+                        "propertyName": "type"
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "geometry",
+                        "properties"
+                      ],
+                      "properties": {
+                        "geometry": {
+                          "allOf": [
+                            {
+                              "nullable": true
+                            },
+                            {
+                              "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+                              "externalDocs": {
+                                "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                              },
+                              "allOf": [
+                                {
+                                  "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                                  "externalDocs": {
+                                    "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                                  },
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "Feature",
+                                        "FeatureCollection",
+                                        "Point",
+                                        "MultiPoint",
+                                        "LineString",
+                                        "MultiLineString",
+                                        "Polygon",
+                                        "MultiPolygon",
+                                        "GeometryCollection"
+                                      ]
+                                    },
+                                    "bbox": {
+                                      "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                                      "type": "array",
+                                      "items": {
+                                        "type": "number"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "discriminator": {
+                                    "propertyName": "type"
+                                  }
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "type": {
+                                      "type": "string",
+                                      "enum": [
+                                        "Point",
+                                        "MultiPoint",
+                                        "LineString",
+                                        "MultiLineString",
+                                        "Polygon",
+                                        "MultiPolygon",
+                                        "GeometryCollection"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "type"
+                                  ],
+                                  "discriminator": {
+                                    "propertyName": "type"
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        "properties": {
+                          "type": "object",
+                          "nullable": true
+                        },
+                        "id": {
+                          "oneOf": [
+                            {
+                              "type": "number"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Position": {
+        "description": "GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as \"M\") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.1.1"
+        },
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "LineStringCoordinates": {
+        "description": "GeoJSon fundamental geometry construct, array of two or more positions.\n",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.1.4"
+        },
+        "type": "array",
+        "items": {
+          "description": "GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as \"M\") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n",
+          "externalDocs": {
+            "url": "https://tools.ietf.org/html/rfc7946#section-3.1.1"
+          },
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "type": "number"
+          }
+        },
+        "minItems": 2
+      },
+      "LinearRing": {
+        "description": "A linear ring is a closed LineString with four or more positions.\nThe first and last positions are equivalent, and they MUST contain identical values; their representation SHOULD also be identical.\nA linear ring is the boundary of a surface or the boundary of a hole in a surface.\nA linear ring MUST follow the right-hand rule with respect to the area it bounds, i.e., exterior rings are counterclockwise, and holes are clockwise.\n",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.1.6"
+        },
+        "type": "array",
+        "items": {
+          "description": "GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as \"M\") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n",
+          "externalDocs": {
+            "url": "https://tools.ietf.org/html/rfc7946#section-3.1.1"
+          },
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 3,
+          "items": {
+            "type": "number"
+          }
+        },
+        "minItems": 4
+      },
+      "Point": {
+        "description": "GeoJSon geometry",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.1.2"
+        },
+        "allOf": [
+          {
+            "description": "Abstract type for all GeoJSon 'Geometry' object the type of which is not 'GeometryCollection'\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "allOf": [
+              {
+                "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+                "externalDocs": {
+                  "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                },
+                "allOf": [
+                  {
+                    "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                    "externalDocs": {
+                      "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                    },
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Feature",
+                          "FeatureCollection",
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      },
+                      "bbox": {
+                        "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Point",
+                      "MultiPoint",
+                      "LineString",
+                      "MultiLineString",
+                      "Polygon",
+                      "MultiPolygon"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "discriminator": {
+                  "propertyName": "type"
+                }
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "coordinates"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Point"
+                ]
+              },
+              "coordinates": {
+                "description": "GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as \"M\") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n",
+                "externalDocs": {
+                  "url": "https://tools.ietf.org/html/rfc7946#section-3.1.1"
+                },
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 3,
+                "items": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "MultiPoint": {
+        "description": "GeoJSon geometry",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.1.3"
+        },
+        "allOf": [
+          {
+            "description": "Abstract type for all GeoJSon 'Geometry' object the type of which is not 'GeometryCollection'\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "allOf": [
+              {
+                "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+                "externalDocs": {
+                  "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                },
+                "allOf": [
+                  {
+                    "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                    "externalDocs": {
+                      "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                    },
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Feature",
+                          "FeatureCollection",
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      },
+                      "bbox": {
+                        "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Point",
+                      "MultiPoint",
+                      "LineString",
+                      "MultiLineString",
+                      "Polygon",
+                      "MultiPolygon"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "discriminator": {
+                  "propertyName": "type"
+                }
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "required": [
+              "coordinates"
+            ],
+            "properties": {
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "description": "GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as \"M\") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n",
+                  "externalDocs": {
+                    "url": "https://tools.ietf.org/html/rfc7946#section-3.1.1"
+                  },
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "LineString": {
+        "description": "GeoJSon geometry",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.1.4"
+        },
+        "allOf": [
+          {
+            "description": "Abstract type for all GeoJSon 'Geometry' object the type of which is not 'GeometryCollection'\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "allOf": [
+              {
+                "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+                "externalDocs": {
+                  "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                },
+                "allOf": [
+                  {
+                    "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                    "externalDocs": {
+                      "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                    },
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Feature",
+                          "FeatureCollection",
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      },
+                      "bbox": {
+                        "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Point",
+                      "MultiPoint",
+                      "LineString",
+                      "MultiLineString",
+                      "Polygon",
+                      "MultiPolygon"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "discriminator": {
+                  "propertyName": "type"
+                }
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "required": [
+              "coordinates"
+            ],
+            "properties": {
+              "coordinates": {
+                "description": "GeoJSon fundamental geometry construct, array of two or more positions.\n",
+                "externalDocs": {
+                  "url": "https://tools.ietf.org/html/rfc7946#section-3.1.4"
+                },
+                "type": "array",
+                "items": {
+                  "description": "GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as \"M\") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n",
+                  "externalDocs": {
+                    "url": "https://tools.ietf.org/html/rfc7946#section-3.1.1"
+                  },
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number"
+                  }
+                },
+                "minItems": 2
+              }
+            }
+          }
+        ]
+      },
+      "MultiLineString": {
+        "description": "GeoJSon geometry",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.1.5"
+        },
+        "allOf": [
+          {
+            "description": "Abstract type for all GeoJSon 'Geometry' object the type of which is not 'GeometryCollection'\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "allOf": [
+              {
+                "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+                "externalDocs": {
+                  "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                },
+                "allOf": [
+                  {
+                    "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                    "externalDocs": {
+                      "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                    },
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Feature",
+                          "FeatureCollection",
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      },
+                      "bbox": {
+                        "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Point",
+                      "MultiPoint",
+                      "LineString",
+                      "MultiLineString",
+                      "Polygon",
+                      "MultiPolygon"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "discriminator": {
+                  "propertyName": "type"
+                }
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "required": [
+              "coordinates"
+            ],
+            "properties": {
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "description": "GeoJSon fundamental geometry construct, array of two or more positions.\n",
+                  "externalDocs": {
+                    "url": "https://tools.ietf.org/html/rfc7946#section-3.1.4"
+                  },
+                  "type": "array",
+                  "items": {
+                    "description": "GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as \"M\") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n",
+                    "externalDocs": {
+                      "url": "https://tools.ietf.org/html/rfc7946#section-3.1.1"
+                    },
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "minItems": 2
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Polygon": {
+        "description": "GeoJSon geometry",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.1.6"
+        },
+        "allOf": [
+          {
+            "description": "Abstract type for all GeoJSon 'Geometry' object the type of which is not 'GeometryCollection'\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "allOf": [
+              {
+                "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+                "externalDocs": {
+                  "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                },
+                "allOf": [
+                  {
+                    "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                    "externalDocs": {
+                      "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                    },
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Feature",
+                          "FeatureCollection",
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      },
+                      "bbox": {
+                        "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Point",
+                      "MultiPoint",
+                      "LineString",
+                      "MultiLineString",
+                      "Polygon",
+                      "MultiPolygon"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "discriminator": {
+                  "propertyName": "type"
+                }
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "required": [
+              "coordinates"
+            ],
+            "properties": {
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "description": "A linear ring is a closed LineString with four or more positions.\nThe first and last positions are equivalent, and they MUST contain identical values; their representation SHOULD also be identical.\nA linear ring is the boundary of a surface or the boundary of a hole in a surface.\nA linear ring MUST follow the right-hand rule with respect to the area it bounds, i.e., exterior rings are counterclockwise, and holes are clockwise.\n",
+                  "externalDocs": {
+                    "url": "https://tools.ietf.org/html/rfc7946#section-3.1.6"
+                  },
+                  "type": "array",
+                  "items": {
+                    "description": "GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as \"M\") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n",
+                    "externalDocs": {
+                      "url": "https://tools.ietf.org/html/rfc7946#section-3.1.1"
+                    },
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number"
+                    }
+                  },
+                  "minItems": 4
+                }
+              }
+            }
+          }
+        ]
+      },
+      "MultiPolygon": {
+        "description": "GeoJSon geometry",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.1.7"
+        },
+        "allOf": [
+          {
+            "description": "Abstract type for all GeoJSon 'Geometry' object the type of which is not 'GeometryCollection'\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "allOf": [
+              {
+                "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+                "externalDocs": {
+                  "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                },
+                "allOf": [
+                  {
+                    "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                    "externalDocs": {
+                      "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                    },
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Feature",
+                          "FeatureCollection",
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      },
+                      "bbox": {
+                        "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "Point",
+                          "MultiPoint",
+                          "LineString",
+                          "MultiLineString",
+                          "Polygon",
+                          "MultiPolygon",
+                          "GeometryCollection"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ],
+                    "discriminator": {
+                      "propertyName": "type"
+                    }
+                  }
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Point",
+                      "MultiPoint",
+                      "LineString",
+                      "MultiLineString",
+                      "Polygon",
+                      "MultiPolygon"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "discriminator": {
+                  "propertyName": "type"
+                }
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "required": [
+              "coordinates"
+            ],
+            "properties": {
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "description": "A linear ring is a closed LineString with four or more positions.\nThe first and last positions are equivalent, and they MUST contain identical values; their representation SHOULD also be identical.\nA linear ring is the boundary of a surface or the boundary of a hole in a surface.\nA linear ring MUST follow the right-hand rule with respect to the area it bounds, i.e., exterior rings are counterclockwise, and holes are clockwise.\n",
+                    "externalDocs": {
+                      "url": "https://tools.ietf.org/html/rfc7946#section-3.1.6"
+                    },
+                    "type": "array",
+                    "items": {
+                      "description": "GeoJSon fundamental geometry construct.\nA position is an array of numbers. There MUST be two or more elements. The first two elements are longitude and latitude, or easting and northing, precisely in that order and using decimal numbers. Altitude or elevation MAY be included as an optional third element.\nImplementations SHOULD NOT extend positions beyond three elements because the semantics of extra elements are unspecified and ambiguous. Historically, some implementations have used a fourth element to carry a linear referencing measure (sometimes denoted as \"M\") or a numerical timestamp, but in most situations a parser will not be able to properly interpret these values. The interpretation and meaning of additional elements is beyond the scope of this specification, and additional elements MAY be ignored by parsers.\n",
+                      "externalDocs": {
+                        "url": "https://tools.ietf.org/html/rfc7946#section-3.1.1"
+                      },
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 3,
+                      "items": {
+                        "type": "number"
+                      }
+                    },
+                    "minItems": 4
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "GeometryCollection": {
+        "type": "object",
+        "description": "GeoJSon geometry collection\nGeometryCollections composed of a single part or a number of parts of a single type SHOULD be avoided when that single part or a single object of multipart type (MultiPoint, MultiLineString, or MultiPolygon) could be used instead.\n",
+        "externalDocs": {
+          "url": "https://tools.ietf.org/html/rfc7946#section-3.1.8"
+        },
+        "allOf": [
+          {
+            "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+            "externalDocs": {
+              "url": "https://tools.ietf.org/html/rfc7946#section-3"
+            },
+            "allOf": [
+              {
+                "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                "externalDocs": {
+                  "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                },
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Feature",
+                      "FeatureCollection",
+                      "Point",
+                      "MultiPoint",
+                      "LineString",
+                      "MultiLineString",
+                      "Polygon",
+                      "MultiPolygon",
+                      "GeometryCollection"
+                    ]
+                  },
+                  "bbox": {
+                    "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "discriminator": {
+                  "propertyName": "type"
+                }
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "Point",
+                      "MultiPoint",
+                      "LineString",
+                      "MultiLineString",
+                      "Polygon",
+                      "MultiPolygon",
+                      "GeometryCollection"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ],
+                "discriminator": {
+                  "propertyName": "type"
+                }
+              }
+            ]
+          },
+          {
+            "type": "object",
+            "required": [
+              "geometries"
+            ],
+            "properties": {
+              "geometries": {
+                "type": "array",
+                "items": {
+                  "description": "Abstract type for all GeoJSon 'Geometry' object the type of which is not 'GeometryCollection'\n",
+                  "externalDocs": {
+                    "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                  },
+                  "allOf": [
+                    {
+                      "description": "Abstract type for all GeoJSon object except Feature and FeatureCollection\n",
+                      "externalDocs": {
+                        "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                      },
+                      "allOf": [
+                        {
+                          "description": "GeoJSon object\nThe coordinate reference system for all GeoJSON coordinates is a geographic coordinate reference system, using the World Geodetic System 1984 (WGS 84) datum, with longitude and latitude units of decimal degrees. This is equivalent to the coordinate reference system identified by the Open Geospatial Consortium (OGC) URN An OPTIONAL third-position element SHALL be the height in meters above or below the WGS 84 reference ellipsoid. In the absence of elevation values, applications sensitive to height or depth SHOULD interpret positions as being at local ground or sea level.\n",
+                          "externalDocs": {
+                            "url": "https://tools.ietf.org/html/rfc7946#section-3"
+                          },
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "Feature",
+                                "FeatureCollection",
+                                "Point",
+                                "MultiPoint",
+                                "LineString",
+                                "MultiLineString",
+                                "Polygon",
+                                "MultiPolygon",
+                                "GeometryCollection"
+                              ]
+                            },
+                            "bbox": {
+                              "description": "A GeoJSON object MAY have a member named \"bbox\" to include information on the coordinate range for its Geometries, Features, or FeatureCollections. The value of the bbox member MUST be an array of length 2*n where n is the number of dimensions represented in the contained geometries, with all axes of the most southwesterly point followed by all axes of the more northeasterly point. The axes order of a bbox follows the axes order of geometries.\n",
+                              "type": "array",
+                              "items": {
+                                "type": "number"
+                              }
+                            }
+                          },
+                          "required": [
+                            "type"
+                          ],
+                          "discriminator": {
+                            "propertyName": "type"
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "Point",
+                                "MultiPoint",
+                                "LineString",
+                                "MultiLineString",
+                                "Polygon",
+                                "MultiPolygon",
+                                "GeometryCollection"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "type"
+                          ],
+                          "discriminator": {
+                            "propertyName": "type"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "Point",
+                            "MultiPoint",
+                            "LineString",
+                            "MultiLineString",
+                            "Polygon",
+                            "MultiPolygon"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "type"
+                      ],
+                      "discriminator": {
+                        "propertyName": "type"
+                      }
+                    }
+                  ]
+                },
+                "minItems": 0
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
